@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 import requests
 
@@ -17,6 +18,22 @@ option = st.selectbox(
     "¿Qué te gustaría hacer?",
     ("Iniciar Sesión", "Registrarse")
 )
+
+# Función para validar el formato del correo electrónico
+def is_valid_email(email):
+    regex = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.match(regex, email) is not None
+
+# Función para validar la contraseña
+def is_valid_password(password):
+    # Ejemplo: al menos 8 caracteres, con letras y números
+    if len(password) < 8:
+        return False
+    if not re.search(r'[A-Za-z]', password):
+        return False
+    if not re.search(r'[0-9]', password):
+        return False
+    return True
 
 # Función para registrar un nuevo usuario
 def register_user(name, birth_date, email, phone_number, password):
@@ -65,6 +82,10 @@ elif option == "Registrarse":
     if st.button("Registrarse"):
         if not name or not email or not password:
             st.error("Por favor, completa los campos obligatorios: Nombre, Email y Contraseña.")
+        elif not is_valid_email(email):
+            st.error("Por favor, introduce un email válido.")
+        elif not is_valid_password(password):
+            st.error("La contraseña debe tener mínimo 8 caracteres, incluyendo letras y al menos un número.")
         else:
             with st.spinner('Registrando...'):
                 response = register_user(name, birth_date, email, phone_number, password)
@@ -73,4 +94,4 @@ elif option == "Registrarse":
                 elif response.status_code == 409:
                     st.error("El usuario ya existe.")
                 else:
-                    st.error(f"Error en el registro: {response.status_code} - {response.text}")
+                    st.error(f"Error en el registro: {response.status_code} - {response.text} - inténtalo de nuevo más tarde.")
