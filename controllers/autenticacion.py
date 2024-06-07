@@ -95,6 +95,8 @@ def handle_registration_response(response):
         st.success("¡Registro exitoso! Ya puedes iniciar sesión.")
     elif response.status_code == 409:
         st.error("El usuario ya existe.")
+    elif response.status_code == 500:
+        st.error("Estamos teniendo problemas, inténtalo de nuevo.")
     else:
         st.error(
             f"Error en el registro: {response.status_code} - {response.text} - inténtalo de nuevo más tarde."
