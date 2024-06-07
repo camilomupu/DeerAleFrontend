@@ -3,6 +3,7 @@ import requests
 import streamlit as st
 
 API_URL = "https://deeralebackend.azurewebsites.net"
+API_URL = "http://127.0.0.1:8000"
 REGISTER_ENDPOINT = "/user/register/"
 LOGIN_ENDPOINT = "/user/login"
 
@@ -63,6 +64,8 @@ def handle_login_response(response):
             # Almacenar el token en la sesión de Streamlit
             st.session_state["access_token"] = access_token
             st.session_state["token_type"] = token_type
+        else:
+            st.error("Error en la respuesta del servidor. Faltan campos de token.")
     elif response.status_code == 404:
         st.error("El usuario no existe.")
     elif response.status_code == 401:
@@ -70,24 +73,33 @@ def handle_login_response(response):
     elif response.status_code == 500:
         st.error("Estamos teniendo problemas, inténtalo de nuevo.")
     else:
-        st.error("Error al iniciar sesión. Por favor, verifica tus credenciales.")
+        st.error(f"Error al iniciar sesión. Código de estado: {response.status_code}")
 
 
 def show_login_form():
-    st.subheader("Iniciar Sesión")
-    # Crear el formulario de inicio de sesión
-    email = st.text_input("Email")
-    password = st.text_input("Contraseña", type="password")
-    # Botón de inicio de sesión
-    if st.button("Iniciar Sesión"):
-        if not email or not password:
-            st.error("Por favor, completa los campos obligatorios: Email y Contraseña.")
-        elif not is_valid_email(email):
-            st.error("Por favor, introduce un email válido.")
-        else:
-            with st.spinner("Iniciando sesión..."):
-                response = login_user(email, password)
-                handle_login_response(response)
+    if "access_token" in st.session_state:
+        st.success("¡Inicio de sesión exitoso!")
+        if st.button("Cerrar Sesión"):
+            del st.session_state["access_token"]
+            del st.session_state["token_type"]
+            st.rerun()
+    else:
+        st.subheader("Iniciar Sesión")
+        # Crear el formulario de inicio de sesión
+        email = st.text_input("Email")
+        password = st.text_input("Contraseña", type="password")
+        # Botón de inicio de sesión
+        if st.button("Iniciar Sesión"):
+            if not email or not password:
+                st.error(
+                    "Por favor, completa los campos obligatorios: Email y Contraseña."
+                )
+            elif not is_valid_email(email):
+                st.error("Por favor, introduce un email válido.")
+            else:
+                with st.spinner("Iniciando sesión..."):
+                    response = login_user(email, password)
+                    handle_login_response(response)
 
 
 def handle_registration_response(response):
@@ -104,41 +116,47 @@ def handle_registration_response(response):
 
 
 def show_registration_form():
-    st.subheader("Registrarse")
+    if "access_token" in st.session_state:
+        st.success("¡Inicio de sesión exitoso!")
+        if st.button("Cerrar Sesión"):
+            del st.session_state["access_token"]
+            del st.session_state["token_type"]
+            st.rerun()
+    else:
+        st.subheader("Registrarse")
+        # Crear el formulario de registro
+        name = st.text_input("Nombre")
+        email = st.text_input("Email")
+        password = st.text_input("Contraseña", type="password")
 
-    # Crear el formulario de registro
-    name = st.text_input("Nombre")
-    email = st.text_input("Email")
-    password = st.text_input("Contraseña", type="password")
+        # Checkbox para mostrar campos opcionales
+        show_birth_date = st.checkbox("Agregar fecha de nacimiento (opcional)")
+        show_phone_number = st.checkbox("Agregar número de teléfono (opcional)")
 
-    # Checkbox para mostrar campos opcionales
-    show_birth_date = st.checkbox("Agregar fecha de nacimiento (opcional)")
-    show_phone_number = st.checkbox("Agregar número de teléfono (opcional)")
+        birth_date = None
+        phone_number = ""
 
-    birth_date = None
-    phone_number = ""
+        if show_birth_date:
+            birth_date = st.date_input("Fecha de Nacimiento (YYYY-MM-DD)")
 
-    if show_birth_date:
-        birth_date = st.date_input("Fecha de Nacimiento (YYYY-MM-DD)")
+        if show_phone_number:
+            phone_number = st.text_input("Número de Teléfono")
 
-    if show_phone_number:
-        phone_number = st.text_input("Número de Teléfono")
-
-    # Botón de registro
-    if st.button("Registrarse"):
-        if not name or not email or not password:
-            st.error(
-                "Por favor, completa los campos obligatorios: Nombre, Email y Contraseña."
-            )
-        elif not is_valid_email(email):
-            st.error("Por favor, introduce un email válido.")
-        elif not is_valid_password(password):
-            st.error(
-                "La contraseña debe tener mínimo 8 caracteres, incluyendo letras y al menos un número."
-            )
-        else:
-            with st.spinner("Registrando..."):
-                response = register_user(
-                    name, birth_date, email, phone_number, password
+        # Botón de registro
+        if st.button("Registrarse"):
+            if not name or not email or not password:
+                st.error(
+                    "Por favor, completa los campos obligatorios: Nombre, Email y Contraseña."
                 )
-                handle_registration_response(response)
+            elif not is_valid_email(email):
+                st.error("Por favor, introduce un email válido.")
+            elif not is_valid_password(password):
+                st.error(
+                    "La contraseña debe tener mínimo 8 caracteres, incluyendo letras y al menos un número."
+                )
+            else:
+                with st.spinner("Registrando..."):
+                    response = register_user(
+                        name, birth_date, email, phone_number, password
+                    )
+                    handle_registration_response(response)

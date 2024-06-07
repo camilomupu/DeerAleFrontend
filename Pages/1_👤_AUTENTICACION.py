@@ -1,5 +1,5 @@
 import streamlit as st
-from controllers.autenticacion import *
+from controllers.autenticacion import show_login_form, show_registration_form
 
 st.set_page_config(
     page_title="Autenticación",
