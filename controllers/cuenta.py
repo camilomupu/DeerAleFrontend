@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 from datetime import datetime
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://backend-deer-ale.vercel.app"
 
 
 # Función para obtener la información del usuario actual

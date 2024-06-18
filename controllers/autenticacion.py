@@ -2,8 +2,7 @@ import re
 import requests
 import streamlit as st
 
-#API_URL = "https://deeralebackend.azurewebsites.net"
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://backend-deer-ale.vercel.app"
 REGISTER_ENDPOINT = "/user/register/"
 LOGIN_ENDPOINT = "/user/login"
 
