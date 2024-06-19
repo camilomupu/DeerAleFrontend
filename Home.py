@@ -63,8 +63,8 @@ st.markdown(
 )
 
 # Botón de llamada a la acción
-if st.button("Explorar el catálogo"):
-    st.write("¡Explora nuestra colección ahora!")
+if st.button("Inicia sesión o regístrate para disfrutar de todos nuestros productos"):
+    st.switch_page("pages/1_👤_AUTENTICACION.py")
 
 # Sección de contacto
 st.markdown("### ¿Tienes alguna pregunta?")
